@@ -148,6 +148,12 @@ class GenericParticipant {
     const mapToWrite = Object.assign({ committedTxns: this.committedTxns }, dataMap)
     await actor.state.setMultiple(this, mapToWrite)
   }
+
+  async purgeTxnRecord(txnId) {
+    delete this.preparedTxns[txnId]
+    delete this.committedTxns[txnId]
+    await actor.state.setMultiple(this, { preparedTxns: this.preparedTxns, committedTxns: this.committedTxns })
+  }
 }
 
 exports.GenericParticipant = GenericParticipant

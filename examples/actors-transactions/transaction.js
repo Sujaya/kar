@@ -77,6 +77,18 @@ class Transaction {
       console.log(error.toString())
       return this.sendCommitAsync(prtpnts, operations, decision)
     }
+    await actor.tell(this, 'purgeTxn')
+  }
+
+  async purgeTxn() {
+    // await new Promise(r => setTimeout(r, 5000))
+    const txnComplete = await actor.state.get(this, 'commitComplete')
+    if (txnComplete) {
+      const actorUpdates = await actor.state.get(this, 'actorUpdates')
+      for (const i in actorUpdates) {
+        await actor.call(actorUpdates[i].actr, 'purgeTxnRecord', this.txnId)
+      }
+    } else (await this.purgeTxn())
   }
 }
 
